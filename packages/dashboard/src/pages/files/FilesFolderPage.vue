@@ -374,7 +374,9 @@ export default defineComponent({
 		this.$refs.table.sort("name");
 
 		this.$bus.on("fetchFiles", this.resetAndFetchFiles);
-		this.$bus.on("openManageShares", () => this.$refs.shareFile.openManageShares());
+		this.$bus.on("openManageShares", () =>
+			this.$refs.shareFile.openManageShares(),
+		);
 
 		if (this.$route.params.file) {
 			this.openPreviewFromKey();

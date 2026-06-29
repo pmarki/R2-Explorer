@@ -1,5 +1,4 @@
 ---
-"r2-explorer-dashboard": minor
 "r2-explorer": patch
 ---
 

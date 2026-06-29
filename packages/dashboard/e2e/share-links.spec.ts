@@ -90,7 +90,7 @@ test.describe("Share links", () => {
 		await page.goto(`/${BUCKET}/files`);
 		await expect(page.locator(".q-table")).toBeVisible({ timeout: 10_000 });
 
-		await page.getByRole("button", { name: "Manage Shares" }).click();
+		await page.getByRole("button", { name: "Shares" }).click();
 
 		await expect(
 			page.locator("text=Manage Share Links"),
@@ -121,7 +121,7 @@ test.describe("Share links", () => {
 		});
 
 		// Open manage shares
-		await page.getByRole("button", { name: "Manage Shares" }).click();
+		await page.getByRole("button", { name: "Shares" }).click();
 		await expect(page.locator("text=Manage Share Links")).toBeVisible({
 			timeout: 5_000,
 		});
@@ -161,7 +161,7 @@ test.describe("Share links", () => {
 		});
 
 		// Open manage shares
-		await page.getByRole("button", { name: "Manage Shares" }).click();
+		await page.getByRole("button", { name: "Shares" }).click();
 		await expect(page.locator("text=Manage Share Links")).toBeVisible({
 			timeout: 5_000,
 		});
