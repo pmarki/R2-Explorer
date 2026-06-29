@@ -23,6 +23,7 @@ export type R2ExplorerConfig = {
 		  }
 		| false;
 	showHiddenFiles?: boolean;
+	shares?: false;
 	basicAuth?: BasicAuth | BasicAuth[];
 	buckets?: Record<string, BucketConfig>;
 };
@@ -48,6 +49,7 @@ export type AppEnv = {
 	R2_EXPLORER_BASIC_AUTH_USERNAME?: string;
 	R2_EXPLORER_BASIC_AUTH_PASSWORD?: string;
 	R2_EXPLORER_EMAIL_ROUTING_TARGET_BUCKET?: string;
+	R2_EXPLORER_SHARES?: string;
 	[key: string]: R2Bucket | string | Fetcher | undefined;
 };
 export type AppVariables = {

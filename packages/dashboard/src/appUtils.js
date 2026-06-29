@@ -3,21 +3,129 @@ import { useMainStore } from "stores/main-store";
 
 export const ROOT_FOLDER = "IA=="; // IA== is a space
 
+const FILE_TYPE_MAP = (() => {
+	const types = [
+		{
+			exts: [
+				"jpg",
+				"jpeg",
+				"png",
+				"gif",
+				"webp",
+				"svg",
+				"bmp",
+				"ico",
+				"tiff",
+				"tif",
+				"avif",
+				"heic",
+				"heif",
+			],
+			icon: "image",
+			color: "purple",
+		},
+		{
+			exts: ["pdf"],
+			icon: "picture_as_pdf",
+			color: "red",
+		},
+		{
+			exts: [
+				"txt",
+				"md",
+				"csv",
+				"log",
+				"rtf",
+				"json",
+				"xml",
+				"yaml",
+				"yml",
+				"html",
+				"htm",
+				"css",
+				"js",
+				"ts",
+				"jsx",
+				"tsx",
+				"py",
+				"rb",
+				"go",
+				"rs",
+				"java",
+				"c",
+				"cpp",
+				"h",
+				"sh",
+				"bat",
+				"ps1",
+				"sql",
+			],
+			icon: "description",
+			color: "blue",
+		},
+		{
+			exts: [
+				"mp4",
+				"mkv",
+				"avi",
+				"mov",
+				"wmv",
+				"flv",
+				"webm",
+				"m4v",
+				"mpg",
+				"mpeg",
+			],
+			icon: "movie",
+			color: "deep-purple",
+		},
+		{
+			exts: ["mp3", "wav", "flac", "aac", "ogg", "m4a", "wma", "opus", "aiff"],
+			icon: "music_note",
+			color: "pink",
+		},
+		{
+			exts: ["zip", "tar", "gz", "rar", "7z", "bz2", "xz"],
+			icon: "archive",
+			color: "brown",
+		},
+		{
+			exts: ["exe", "msi", "dmg", "bin", "dll", "app", "deb", "rpm"],
+			icon: "build",
+			color: "deep-orange",
+		},
+	];
+	const map = {};
+	for (const { exts, icon, color } of types) {
+		for (const ext of exts) {
+			map[ext] = { icon, color };
+		}
+	}
+	return map;
+})();
+
+function fileIcon(name) {
+	const ext = name.split(".").pop().toLowerCase();
+	return FILE_TYPE_MAP[ext] ?? { icon: "insert_drive_file", color: "grey" };
+}
+
 function mapFile(obj, prefix) {
 	const date = new Date(obj.uploaded);
+	const name = obj.key.replace(prefix, "");
+	const { icon, color } = fileIcon(name);
 
 	return {
 		...obj,
 		hash: encode(obj.key),
-		nameHash: encode(obj.key.replace(prefix, "")),
-		name: obj.key.replace(prefix, ""),
+		nameHash: encode(name),
+		name,
 		lastModified: timeSince(date),
 		timestamp: date.getTime(),
 		size: bytesToSize(obj.size),
 		sizeRaw: obj.size,
 		type: "file",
-		icon: "article",
-		color: "grey",
+		icon,
+		color,
 	};
 }
 

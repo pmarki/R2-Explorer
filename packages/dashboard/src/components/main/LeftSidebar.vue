@@ -46,7 +46,8 @@
       <q-btn class="q-mb-sm" @click="gotoFiles" color="blue" icon="folder_copy" label="Files" stack />
       <q-btn v-if="mainStore.config && mainStore.config.emailRouting !== false" class="q-mb-sm" @click="gotoEmail" color="blue" icon="email" label="Email" stack />
 
-      <q-btn class="q-mb-sm q-mt-auto q-mb-0" @click="infoPopup=true" color="secondary" icon="question_mark"
+      <q-btn v-if="mainStore.config && mainStore.config.shares !== false" class="q-mb-sm q-mt-auto" @click="$bus.emit('openManageShares')" color="blue" icon="link" label="Shares" stack />
+      <q-btn class="q-mb-0" @click="infoPopup=true" color="secondary" icon="question_mark"
              label="Info"
              stack />
     </div>

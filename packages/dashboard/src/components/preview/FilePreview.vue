@@ -6,9 +6,9 @@
     @hide="close"
   >
     <q-card class="flex column">
-      <q-card-section class="row items-center q-p-sm bg-grey-3" style="font-size: 20px">
+      <q-card-section class="row items-center q-p-sm bg-grey-3" style="font-size: 20px; flex-wrap: nowrap; min-width: 0">
 
-        <div>{{ filename }}</div>
+        <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex-shrink: 1">{{ filename }}</div>
 
         <template v-if="editMode">
           <q-btn icon="delete" label="Cancel" size="md" class="q-ml-md" color="red" dense @click="cancelEdit" />

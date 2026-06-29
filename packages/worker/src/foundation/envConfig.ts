@@ -32,6 +32,9 @@ export function buildConfigFromEnv(env: AppEnv): Partial<R2ExplorerConfig> {
 			password: env.R2_EXPLORER_BASIC_AUTH_PASSWORD,
 		} satisfies BasicAuthType;
 	}
+	if (env.R2_EXPLORER_SHARES === "false") {
+		config.shares = false;
+	}
 
 	return config;
 }
