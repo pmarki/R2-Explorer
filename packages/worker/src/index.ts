@@ -8,6 +8,7 @@ import { type ExecutionContext, Hono } from "hono";
 import { basicAuth } from "hono/basic-auth";
 import { cors } from "hono/cors";
 import { z } from "zod";
+import { buildConfigFromEnv } from "./foundation/envConfig";
 import { readOnlyMiddleware } from "./foundation/middlewares/readonly";
 import { settings } from "./foundation/settings";
 import { CopyObject } from "./modules/buckets/copyObject";
@@ -38,10 +39,11 @@ import type {
 	R2ExplorerConfig,
 } from "./types";
 
+const configDefaults: Partial<R2ExplorerConfig> = { readonly: true };
+
 export function R2Explorer(config?: R2ExplorerConfig) {
 	extendZodWithOpenApi(z);
 	config = config || {};
-	if (config.readonly !== false) config.readonly = true;
 
 	const openapiSchema: OpenAPIObjectConfigV31 = {
 		openapi: "3.1.0",
@@ -60,8 +62,15 @@ export function R2Explorer(config?: R2ExplorerConfig) {
 	}
 
 	const app = new Hono<{ Bindings: AppEnv; Variables: AppVariables }>();
+
+	// Merge defaults, ENV-based config, and static config on every request.
+	// Priority: static config > ENV vars > defaults.
 	app.use("*", async (c, next) => {
-		c.set("config", config);
+		c.set("config", {
+			...configDefaults,
+			...buildConfigFromEnv(c.env),
+			...config,
+		});
 		await next();
 	});
 
@@ -71,52 +80,61 @@ export function R2Explorer(config?: R2ExplorerConfig) {
 		generateOperationIds: false,
 	});
 
-	if (config.cors === true) {
-		app.use("/api/*", cors());
-	}
+	// CORS — checked per request so ENV vars take effect
+	app.use("/api/*", async (c, next) => {
+		if (c.get("config").cors === true) {
+			return cors()(c, next);
+		}
+		return next();
+	});
 
-	if (config.readonly === true) {
-		app.use("/api/*", readOnlyMiddleware);
-	}
+	// Readonly — already reads from config at request time
+	app.use("/api/*", readOnlyMiddleware);
 
-	if (config.cfAccessTeamName) {
-		app.use("/api/*", cloudflareAccess(config.cfAccessTeamName));
-		app.use("/api/*", async (c, next) => {
+	// Cloudflare Access — checked per request so ENV vars take effect
+	app.use("/api/*", async (c, next) => {
+		const { cfAccessTeamName } = c.get("config");
+		if (!cfAccessTeamName) {
+			return next();
+		}
+		return cloudflareAccess(cfAccessTeamName)(c, async () => {
 			c.set("authentication_type", "cloudflare-access");
 			c.set("authentication_username", c.get("accessPayload").email);
 			await next();
 		});
-	}
+	});
 
+	// Basic auth — checked per request so ENV vars take effect
 	if (config.basicAuth) {
 		openapi.registry.registerComponent("securitySchemes", "basicAuth", {
 			type: "http",
 			scheme: "basic",
 		});
-		app.use(
-			"/api/*",
-			basicAuth({
-				invalidUserMessage: "Authentication error: Basic Auth required",
-				verifyUser: (username, password, c: AppContext) => {
-					const users = (
-						Array.isArray(c.get("config").basicAuth)
-							? c.get("config").basicAuth
-							: [c.get("config").basicAuth]
-					) as BasicAuthType[];
-
-					for (const user of users) {
-						if (user.username === username && user.password === password) {
-							c.set("authentication_type", "basic-auth");
-							c.set("authentication_username", username);
-							return true;
-						}
-					}
-
-					return false;
-				},
-			}),
-		);
 	}
+	app.use("/api/*", async (c, next) => {
+		const basicAuthConfig = c.get("config").basicAuth;
+		if (!basicAuthConfig) {
+			return next();
+		}
+		return basicAuth({
+			invalidUserMessage: "Authentication error: Basic Auth required",
+			verifyUser: (username, password, ctx: AppContext) => {
+				const users = (
+					Array.isArray(basicAuthConfig) ? basicAuthConfig : [basicAuthConfig]
+				) as BasicAuthType[];
+
+				for (const user of users) {
+					if (user.username === username && user.password === password) {
+						ctx.set("authentication_type", "basic-auth");
+						ctx.set("authentication_username", username);
+						return true;
+					}
+				}
+
+				return false;
+			},
+		})(c, next);
+	});
 
 	openapi.get("/api/server/config", GetInfo);
 
@@ -160,7 +178,12 @@ export function R2Explorer(config?: R2ExplorerConfig) {
 			env: AppEnv,
 			context: ExecutionContext,
 		) {
-			await receiveEmail(event, env, context, config);
+			const mergedConfig = {
+				...configDefaults,
+				...buildConfigFromEnv(env),
+				...config,
+			};
+			await receiveEmail(event, env, context, mergedConfig);
 		},
 		async fetch(request: Request, env: unknown, context: ExecutionContext) {
 			return app.fetch(request, env as AppEnv, context);

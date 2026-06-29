@@ -6,6 +6,8 @@ export type BasicAuthType = {
 	password: string;
 };
 
+export type BasicAuth = BasicAuthType;
+
 export type BucketConfig = {
 	publicUrl?: string;
 };
@@ -38,7 +40,15 @@ export type ShareMetadata = {
 
 export type AppEnv = {
 	ASSETS: Fetcher;
-	[key: string]: R2Bucket;
+	R2_EXPLORER_READONLY?: string;
+	R2_EXPLORER_CORS?: string;
+	R2_EXPLORER_CF_ACCESS_TEAM_NAME?: string;
+	R2_EXPLORER_SHOW_HIDDEN_FILES?: string;
+	R2_EXPLORER_DASHBOARD_URL?: string;
+	R2_EXPLORER_BASIC_AUTH_USERNAME?: string;
+	R2_EXPLORER_BASIC_AUTH_PASSWORD?: string;
+	R2_EXPLORER_EMAIL_ROUTING_TARGET_BUCKET?: string;
+	[key: string]: R2Bucket | string | Fetcher | undefined;
 };
 export type AppVariables = {
 	config: R2ExplorerConfig;

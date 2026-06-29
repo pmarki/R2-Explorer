@@ -1,17 +1,20 @@
 # Configuration
 
-All customizations are applied in the `src/index.ts` file.
+Customizations can be applied either in `src/index.ts` or via environment variables in `wrangler.toml` (or Cloudflare dashboard secrets). Environment variables take precedence over defaults; options passed directly to `R2Explorer()` take precedence over environment variables.
 
 Here is all the available options:
 
-| Name               | Type(s)                   | Description                                                                   | Examples                                                  |
-|--------------------|---------------------------|-------------------------------------------------------------------------------|-----------------------------------------------------------|
-| `readonly`         | `boolean` or `undefined`  | Controls the write access globally, default: `true`                           | `true`                                                    |
-| `cors`             | `boolean` or `undefined`  | Enables or disables CORS access to the internal API, default: `false`         | `true`                                                    |
-| `cfAccessTeamName` | `string`  or `undefined`  | When set enforces Cloudflare Access in all requests                           | `radar`  (taken from https://radar.cloudflareaccess.com/) |
-| `emailRouting`     | `object`  or `undefined`  | Customize Email Explorer, read more [here](/guides/setup-email-explorer.html) | `https://demo.r2explorer.com`                             |
-| `cacheAssets`      | `boolean`  or `undefined` | Cache dashboard assets by 5 minutes, default: `true`                          | `true`                                                    |
-| `buckets`          | `object`  or `undefined`  | Configure bucket-specific settings like public URLs                           | `{ BUCKET: { publicUrl: "https://cdn.example.com" } }`    |
+| Name               | Type(s)                   | ENV Variable                              | Description                                                                   | Default |
+|--------------------|---------------------------|-------------------------------------------|-------------------------------------------------------------------------------|---------|
+| `readonly`         | `boolean` or `undefined`  | `R2_EXPLORER_READONLY`                    | Controls the write access globally                                            | `true`  |
+| `cors`             | `boolean` or `undefined`  | `R2_EXPLORER_CORS`                        | Enables or disables CORS access to the internal API                           | `false` |
+| `cfAccessTeamName` | `string`  or `undefined`  | `R2_EXPLORER_CF_ACCESS_TEAM_NAME`         | When set enforces Cloudflare Access in all requests                           |         |
+| `showHiddenFiles`  | `boolean` or `undefined`  | `R2_EXPLORER_SHOW_HIDDEN_FILES`           | Show files and folders whose name starts with a dot                           | `false` |
+| `dashboardUrl`     | `string`  or `undefined`  | `R2_EXPLORER_DASHBOARD_URL`               | Override the dashboard base URL                                               |         |
+| `emailRouting`     | `object`  or `undefined`  | `R2_EXPLORER_EMAIL_ROUTING_TARGET_BUCKET` | Customize Email Explorer, read more [here](/guides/setup-email-explorer.html) |         |
+| `basicAuth`        | `object`  or `undefined`  | `R2_EXPLORER_BASIC_AUTH_USERNAME` + `R2_EXPLORER_BASIC_AUTH_PASSWORD` | Enable HTTP Basic Authentication                    |         |
+| `cacheAssets`      | `boolean`  or `undefined` |                                           | Cache dashboard assets by 5 minutes                                           | `true`  |
+| `buckets`          | `object`  or `undefined`  |                                           | Configure bucket-specific settings like public URLs                           |         |
 
 `emailRouting` options:
 
@@ -27,8 +30,14 @@ Here is all the available options:
 
 ## Disabling readonly mode
 
-For security reasons, by default your application will be in read only mode, to disable this, just update your
-`src/index.ts` file, like this:
+For security reasons, by default your application will be in read only mode. To disable this, either set an environment variable in your `wrangler.toml`:
+
+```toml
+[vars]
+R2_EXPLORER_READONLY = "false"
+```
+
+Or update your `src/index.ts` file:
 
 ```ts
 import { R2Explorer } from 'r2-explorer';
@@ -36,7 +45,7 @@ import { R2Explorer } from 'r2-explorer';
 export default R2Explorer({ readonly: false });
 ```
 
-After this, just deploy your application normally with:
+After this, deploy your application normally with:
 
 ```bash
 wrangler deploy
