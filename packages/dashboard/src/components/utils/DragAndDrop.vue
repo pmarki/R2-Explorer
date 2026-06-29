@@ -167,7 +167,7 @@ export default {
 
 					const key = targetFolder + file.name;
 
-					const chunkSize = 95 * 1024 * 1024;
+					const chunkSize = 10 * 1024 * 1024;
 					// Files bigger than 100MB require multipart upload
 
 					try {

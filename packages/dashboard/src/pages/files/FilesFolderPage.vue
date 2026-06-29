@@ -20,16 +20,6 @@
             <q-icon name="search" class="cursor-pointer" @click="handleSearch" />
           </template>
         </q-input>
-        <q-btn
-          flat
-          dense
-          icon="link"
-          color="primary"
-          label="Manage Shares"
-          @click="$refs.shareFile.openManageShares()"
-        >
-          <q-tooltip>View and manage all share links</q-tooltip>
-        </q-btn>
       </div>
 
       <drag-and-drop ref="uploader">
@@ -384,6 +374,7 @@ export default defineComponent({
 		this.$refs.table.sort("name");
 
 		this.$bus.on("fetchFiles", this.resetAndFetchFiles);
+		this.$bus.on("openManageShares", () => this.$refs.shareFile.openManageShares());
 
 		if (this.$route.params.file) {
 			this.openPreviewFromKey();
@@ -391,6 +382,7 @@ export default defineComponent({
 	},
 	beforeUnmount() {
 		this.$bus.off("fetchFiles");
+		this.$bus.off("openManageShares");
 	},
 	setup() {
 		return {
@@ -407,7 +399,6 @@ export default defineComponent({
   display: block;
 }
 
-
 .file-list td:first-of-type, .file-list th:first-of-type {
   overflow-x: hidden;
   white-space: nowrap;
@@ -419,6 +410,21 @@ export default defineComponent({
   display: flex;
   width: 100%;
   justify-content: center;
+}
 
+@media (max-width: 599px) {
+  .file-list tbody tr {
+    flex-wrap: wrap;
+  }
+
+  .file-list tbody td:first-child {
+    flex: 0 0 100%;
+    max-width: 100%;
+    border-bottom: none;
+  }
+
+  .file-list tbody td:not(:first-child) {
+    flex: 1;
+  }
 }
 </style>

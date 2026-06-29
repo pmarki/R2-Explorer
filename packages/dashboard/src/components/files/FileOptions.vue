@@ -35,26 +35,18 @@
     <q-card style="min-width: 300px;">
       <q-card-section class="row column" v-if="row">
         <h6 class="q-mt-none q-mb-sm flex">HTTP Metadata <q-btn class="q-mr-none q-ml-auto" round size="sm" color="primary" icon="add" @click="updateHttpMetadata.push({key: '', value: ''})" /></h6>
-        <div class="flex row" v-for="(val, index) in updateHttpMetadata" :key="index">
-          <div>
-            <q-input v-model="updateHttpMetadata[index].key" label="Key" />
-          </div>
-          <div>
-            <q-input v-model="updateHttpMetadata[index].value" label="Value" />
-          </div>
+        <div class="metadata-row" v-for="(val, index) in updateHttpMetadata" :key="index">
+          <q-input v-model="updateHttpMetadata[index].key" label="Key" class="col" />
+          <q-input v-model="updateHttpMetadata[index].value" label="Value" class="col" />
           <div class="flex">
             <q-btn class="q-my-auto" round size="sm" color="orange" icon="remove" @click="updateHttpMetadata.splice(index, 1)" />
           </div>
         </div>
 
         <h6 class="q-mt-xl q-mb-sm flex">Custom Metadata <q-btn class="q-mr-none q-ml-auto" round size="sm" color="primary" icon="add" @click="updateCustomMetadata.push({key: '', value: ''})" /></h6>
-        <div class="flex row" v-for="(val, index) in updateCustomMetadata" :key="index">
-          <div>
-            <q-input v-model="updateCustomMetadata[index].key" label="Key" />
-          </div>
-          <div>
-            <q-input v-model="updateCustomMetadata[index].value" label="Value" />
-          </div>
+        <div class="metadata-row" v-for="(val, index) in updateCustomMetadata" :key="index">
+          <q-input v-model="updateCustomMetadata[index].key" label="Key" class="col" />
+          <q-input v-model="updateCustomMetadata[index].value" label="Value" class="col" />
           <div class="flex">
             <q-btn class="q-my-auto" round size="sm" color="orange" icon="remove" @click="updateCustomMetadata.splice(index, 1)" />
           </div>
@@ -343,5 +335,19 @@ export default defineComponent({
 code {
   background-color: #e9e9e9;
   padding: 0.25em;
+}
+
+.metadata-row {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+}
+
+@media (max-width: 599px) {
+  .metadata-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 </style>
